@@ -1,0 +1,147 @@
+<html>
+  <head>
+    <title>My Political Compass</title>
+    <script type="text/javascript" src="dygraph-combined-dev.js"></script>
+    <script type="text/javascript" src="shapes.js"></script>
+    <style>
+      div.annGreen {
+        background-color: rgba(156, 236, 154, 1.0);
+      }
+      div.annRed {
+        background-color: rgba(253, 118, 120, 1.0);
+      }
+      div.annPurple {
+        background-color: rgba(191, 156, 232, 1.0);
+      }
+      div.annBlue {
+        background-color: rgba(72, 172, 252, 1.0);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="compass" style="height: 600px; width: 600px"></div>
+    <div id="labels" style="width: 600px"></span>
+    <script type="text/javascript">
+      // Economic, Social, Year
+      var data = [
+        [-6.63, -2.72, "2005"],
+        [-8.13, -1.90, "2007"],
+        [-8.12, -4.82, "2008"],
+        [-6.62, -5.44, "2009"],
+        [-7.12, -5.33, "2010"],
+        [-5.62, -5.03, "2011"],
+        [-6.63, -7.38, "2015"],
+        [-8.00, -7.38, "2016"],
+      ];
+
+      for(i=0; i<data.length; i++) {
+        data[i][0] += i / 1000000.0;
+      }
+
+      var annotations = [];
+      for(i=0; i<data.length; i++) {
+        quadrant = "";
+        if(data[i][0] < 0.0) {
+          if(data[i][1] < 0.0) {
+            quadrant = "annGreen";
+          } else {
+            quadrant = "annRed";
+          }
+        } else {
+          if(data[i][1] < 0.0) {
+            quadrant = "annPurple";
+          } else {
+            quadrant = "annBlue";
+          }
+        }
+
+        annotations.push({
+          series: "Social",
+          x: data[i][0],
+          shortText: data[i][2],
+          text: data[i][2],
+          width: 30,
+          cssClass: quadrant,
+        });
+      }
+
+      ticks = [];
+      for(i=-10; i<=10; i++) {
+        ticks.push({v: i, label: i});
+      }
+
+      var filledCircle = function(g, series, ctx, cx, cy, color, radius) {
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = "rgba(232, 0, 0, 1.0)";
+        ctx.arc(cx, cy, radius, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.stroke();
+      };
+
+      g = new Dygraph(
+        document.getElementById("compass"),
+        data,
+        {
+          labels: ['Economic', 'Social', 'Year'],
+          labelsDiv: "labels",
+          displayAnnotations: true,
+          title: "My <a href=\"https://www.politicalcompass.org/\">Political Compass</a>",
+          xlabel: "Economic Left/Right",
+          ylabel: "Social Libertarian/Authoritarian",
+          drawPoints: true,
+          pointSize: 7,
+          drawPointCallback: filledCircle,
+          strokeWidth: 0.0,
+          animatedZooms: true,
+          drawAxesAtZero: true,
+          colors: ["rgba(0, 0, 0, 1.0)"],
+          hideOverlayOnMouseOut: true,
+          showLabelsOnHighlight: true,
+          legend: "onmouseover",
+          ticker: function(min, max, pixels, opts, dygraph, vals) {
+            return ticks;
+          },
+          valueFormatter: function(x) {
+            if(x >= -10.0 && x <= 10.0) {
+              return (x * 1.0).toFixed(2);
+            } else {
+              return x;
+            }
+          },
+          valueRange: [-10.0, 10.01],
+          dateWindow: [-10.0, 10.01],
+          underlayCallback: function(canvas, area, g) {
+            // Libertarian Left - green
+            var bottom_left = g.toDomCoords(-10.0, -10.0);
+            var top_right = g.toDomCoords(0.0, 0.0);
+            canvas.fillStyle = "rgba(156, 236, 154, 1.0)";
+            canvas.fillRect(bottom_left[0], bottom_left[1], top_right[0]-bottom_left[0], top_right[1]-bottom_left[1]);
+            
+            // Libertarian Right - purple
+            var bottom_left = g.toDomCoords(0.0, -10.0);
+            var top_right = g.toDomCoords(10.0, 0.0);
+            canvas.fillStyle = "rgba(191, 156, 232, 1.0)";
+            canvas.fillRect(bottom_left[0], bottom_left[1], top_right[0]-bottom_left[0], top_right[1]-bottom_left[1]);
+            
+            // Authoritarian Left - red
+            var bottom_left = g.toDomCoords(-10.0, 0.0);
+            var top_right = g.toDomCoords(0.0, 10.0);
+            canvas.fillStyle = "rgba(253, 118, 120, 1.0)";
+            canvas.fillRect(bottom_left[0], bottom_left[1], top_right[0]-bottom_left[0], top_right[1]-bottom_left[1]);
+            
+            // Authoritarian Right - blue
+            var bottom_left = g.toDomCoords(0.0, 0.0);
+            var top_right = g.toDomCoords(10.0, 10.0);
+            canvas.fillStyle = "rgba(72, 172, 252, 1.0)";
+            canvas.fillRect(bottom_left[0], bottom_left[1], top_right[0]-bottom_left[0], top_right[1]-bottom_left[1]);
+          }
+        }
+      );
+
+      g.ready(function() {
+        g.setAnnotations(annotations);
+      });
+    </script>
+  </body>
+</html>
