@@ -4,18 +4,14 @@
     <script type="text/javascript" src="dygraph-combined-dev.js"></script>
     <script type="text/javascript" src="shapes.js"></script>
     <style>
-      div.annGreen {
-        background-color: rgba(156, 236, 154, 1.0);
-      }
-      div.annRed {
-        background-color: rgba(253, 118, 120, 1.0);
-      }
-      div.annPurple {
-        background-color: rgba(191, 156, 232, 1.0);
-      }
-      div.annBlue {
-        background-color: rgba(72, 172, 252, 1.0);
-      }
+      div.compass_bottomleft { background-color: rgba(156, 236, 154, 1.0); }
+      div.compass_topleft { background-color: rgba(253, 118, 120, 1.0); }
+      div.compass_bottomright { background-color: rgba(191, 156, 232, 1.0); }
+      div.compass_topright { background-color: rgba(72, 172, 252, 1.0); }
+      div.coordinates_bottomleft { background-color: rgb(1,176,239); }
+      div.coordinates_bottomright { background-color: rgb(255,191,0); }
+      div.coordinates_topleft { background-color: rgb(144,209,79); }
+      div.coordinates_topright { background-color: rgb(255,51,0); }
     </style>
   </head>
   <body>
@@ -47,6 +43,10 @@
           'min': -10.0,
           'max': 10.0,
           'ticks': 1.0,
+          'bottomleft': 'rgba(156, 236, 154, 1.0)', // green
+          'bottomright': 'rgba(191, 156, 232, 1.0)', // purple
+          'topleft': 'rgba(253, 118, 120, 1.0)', // red
+          'topright': 'rgba(72, 172, 252, 1.0)', // blue
         },
         'coordinates': {
           // Economic, Social, Year
@@ -60,6 +60,10 @@
           'min': -100.0,
           'max': 100.0,
           'ticks': 10.0,
+          'bottomleft': 'rgb(1,176,239)', // blue
+          'bottomright': 'rgb(255,191,0)', // yellow
+          'topleft': 'rgb(144,209,79)', // green
+          'topright': 'rgb(255,51,0)', // red
         }
       };
 
@@ -73,15 +77,15 @@
           quadrant = "";
           if(conf.data[i][0] < 0.0) {
             if(conf.data[i][1] < 0.0) {
-              quadrant = "annGreen";
+              quadrant = "bottomleft";
             } else {
-              quadrant = "annRed";
+              quadrant = "topleft";
             }
           } else {
             if(conf.data[i][1] < 0.0) {
-              quadrant = "annPurple";
+              quadrant = "bottomright";
             } else {
-              quadrant = "annBlue";
+              quadrant = "topright";
             }
           }
 
@@ -91,7 +95,7 @@
             shortText: conf.data[i][2],
             text: conf.data[i][2],
             width: 30,
-            cssClass: quadrant,
+            cssClass: element + '_' + quadrant,
           });
         }
 
@@ -142,28 +146,28 @@
             valueRange: [conf.min, conf.max+0.01],
             dateWindow: [conf.min, conf.max+0.01],
             underlayCallback: function(canvas, area, g) {
-              // Libertarian Left - green
+              // Libertarian Left
               var bottom_left = g.toDomCoords(conf.min, conf.min);
               var top_right = g.toDomCoords(0.0, 0.0);
-              canvas.fillStyle = "rgba(156, 236, 154, 1.0)";
+              canvas.fillStyle = conf.bottomleft;
               canvas.fillRect(bottom_left[0], bottom_left[1], top_right[0]-bottom_left[0], top_right[1]-bottom_left[1]);
               
-              // Libertarian Right - purple
+              // Libertarian Right
               var bottom_left = g.toDomCoords(0.0, conf.min);
               var top_right = g.toDomCoords(conf.max, 0.0);
-              canvas.fillStyle = "rgba(191, 156, 232, 1.0)";
+              canvas.fillStyle = conf.bottomright;
               canvas.fillRect(bottom_left[0], bottom_left[1], top_right[0]-bottom_left[0], top_right[1]-bottom_left[1]);
               
-              // Authoritarian Left - red
+              // Authoritarian Left
               var bottom_left = g.toDomCoords(conf.min, 0.0);
               var top_right = g.toDomCoords(0.0, conf.max);
-              canvas.fillStyle = "rgba(253, 118, 120, 1.0)";
+              canvas.fillStyle = conf.topleft;
               canvas.fillRect(bottom_left[0], bottom_left[1], top_right[0]-bottom_left[0], top_right[1]-bottom_left[1]);
               
-              // Authoritarian Right - blue
+              // Authoritarian Right
               var bottom_left = g.toDomCoords(0.0, 0.0);
               var top_right = g.toDomCoords(conf.max, conf.max);
-              canvas.fillStyle = "rgba(72, 172, 252, 1.0)";
+              canvas.fillStyle = conf.topright;
               canvas.fillRect(bottom_left[0], bottom_left[1], top_right[0]-bottom_left[0], top_right[1]-bottom_left[1]);
             }
           }
